@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Laravel Application
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8080:80"
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html/public
+    depends_on:
+      - mysql
+    entrypoint: sh -c "sleep 20 && php /var/www/html/artisan migrate && php /var/www/html/artisan db:seed && apache2-foreground"
+    networks:
+      - laravel-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - app
+    networks:
+      - laravel-net
+
+  # MySQL Database
+  mysql:
+    image: mysql:8
+    container_name: laravel-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "umentor"
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "root"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    networks:
+      - laravel-net
+
+networks:
+  laravel-net:
