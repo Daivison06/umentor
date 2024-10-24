@@ -20,7 +20,8 @@ Rodar o projeto
 
 `docker-compose up --build`
 
-O processo de build inclui a execução da migração e o seed do database.
+## Obs
+O processo de build incluí a execução da migrations e o seed do database.
 
 ## Url
 Backend http://localhost:8080/api/users
